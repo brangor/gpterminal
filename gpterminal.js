@@ -1,5 +1,4 @@
 import('dotenv/config');
-
 import readline from 'readline';
 import chalk from 'chalk';
 import OpenAI from "openai";
@@ -9,24 +8,24 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-let openai = null;
+let openai;
 
 const initialize = async () => {
-  await type(label('WELCOME TO CHATGPT SHELL', 'cyan', 'title'));
-  await typeSlowly(label('------------------------', 'cyan', 'title'), 10);
+  await type(label('WELCOME TO GPTERMINAL', 'cyan', 'title'));
+  await type(label('------------------------', 'cyan', 'title'), 10);
 
-  await type(message('Initializing', 'green', 'bold'), 0);
-  await typeSlowly(message(" . . .", 'green', 'bold'), 100);
+  await type(message('Initializing', 'green', 'bold'));
+  await type(message(" . . .", 'green', 'bold'), 50);
 
   await import('dotenv/config');
 
   if (!process.env.OPENAI_API_KEY) {
     await type(label('   [✗]', 'red', 'bold'));
-    await typeSlowly(message("No OpenAI API key found. Please add it to your .env file.", 'red'), 20);
+    await type(message("No OpenAI API key found. Please add it to your .env file.", 'red'), 20);
     process.exit();
   } else {
     await type(label('   [✓]', 'green', 'bold'));
-    await typeSlowly(message(`OpenAI API key found.`, 'green'));
+    await type(message(`OpenAI API key found.`, 'green'), 20);
   }
 
   openai = new OpenAI({
@@ -34,9 +33,9 @@ const initialize = async () => {
   });
 
   await type(label('   [✓]', 'green', 'bold'));
-  await typeSlowly(message(`Good to go!`, 'green'));
+  await type(message(`Good to go!`, 'green'), 20);
 
-  await typeSlowly(label('------------------------', 'cyan', 'title'), 10);
+  await type(label('------------------------', 'cyan', 'title'), 10);
   chat();
 };
 
@@ -72,7 +71,7 @@ const chat = async () => {
 
     const assistantMessage = message(response.choices[0].message.content);
 
-    await typeSlowly(assistantMessage);
+    await type(assistantMessage, 20);
 
     // Append the assistant's message for continuity
     messages.push({
@@ -85,13 +84,13 @@ const chat = async () => {
   });
 };
 
-const label = (label, color = 'cyan', type) => {
+const label = (label, color = 'cyan', type = 'label', margin = 0) => {
   if (type === 'title') {
-    return chalk[color].bold(`\n${label}\n`);
+    return message(`\n${label}\n`, color, 'bold', margin);
   } else if (type === 'prompt' || type === 'bold') {
-    return chalk[color].bold(`${label}\t`);
+    return message(`${label}\t`, color, 'bold', margin);
   } else {
-    return chalk[color](` ${label} `);
+    return message(` ${label} `, color);
   }
 }
 
@@ -99,27 +98,44 @@ const message = (message, color = 'white', type) => {
   if (type === 'bold') {
     return chalk[color].bold(`${message}`);
   } else {
-    return chalk[color](`${message}`);
+    return chalk[color](`${addMargin(message)}`);
   }
 }
 
-const typeSlowly = (message, delay = 50) => {
-  let index = 0;
-  return new Promise((resolve) => {
-    const intervalId = setInterval(() => {
-      process.stdout.write(message[index]);
-      index++;
-      if (index >= message.length) {
-        clearInterval(intervalId);
-        console.log(''); // Move to the next line
-        resolve();
-      }
-    }, delay);
-  });
+const addMargin = (message) => {
+  const margin = '\t'; // Create a string of spaces for the margin
+  const lines = message.split('\n'); // Split the message by lines
+  const indentedLines = [lines.slice(0, 1), ...lines.slice(1, lines.length + 1).map(line => margin + line)]; // Add the margin to each line
+  return indentedLines.join('\n'); // Join the lines back together
 };
 
-const type = (message) => {
-  process.stdout.write(message);
+const type = (message, baseDelay = 0) => {
+  if (baseDelay === 0) {
+    process.stdout.write(message);
+  } else {
+    let index = 0;
+    return new Promise((resolve) => {
+      const intervalId = setInterval(() => {
+        const nextChar = message[index];
+        process.stdout.write(nextChar);
+        index++;
+
+        // Calculate the variable delay based on whether it's a space or not.
+        let delay = baseDelay;
+        if (nextChar === ' ') {
+          delay += 100; // A longer delay for spaces
+        } else {
+          delay += Math.floor(Math.random() * 30); // A little randomization
+        }
+
+        if (index >= message.length) {
+          clearInterval(intervalId);
+          console.log(''); // Move to the next line
+          resolve();
+        }
+      }, baseDelay);
+    });
+  }
 }
 
 initialize();
