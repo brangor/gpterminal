@@ -5,6 +5,8 @@ import OpenAI from "openai";
 
 process.emitWarning = function () {};
 
+const GPT_MODEL_ID = process.env.GPT_MODEL_ID || 'gpt-3.5-turbo';
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -64,7 +66,7 @@ const chat = async () => {
 
     // Call OpenAI API
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: GPT_MODEL_ID,
       messages: messages,
       temperature: 1,
       max_tokens: 256,
