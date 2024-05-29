@@ -3,10 +3,14 @@ import readline from 'readline';
 import chalk from 'chalk';
 import OpenAI from "openai";
 
+process.emitWarning = function () {};
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 let openai;
 
