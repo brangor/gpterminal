@@ -1,4 +1,10 @@
 # GPTERMINAL
+Very simplistic (but kind of aesthetic) node command line-based chatgpt terminal.
+Wrote it so I could have secret terminal chats with chat gpt.
+Feel free to clone/fork this, update the .env to get it running (notes below), and then mess around with it all you like.
+
+![image](https://github.com/brangor/gpterminal/assets/3292898/b1dc4e02-1b1e-4676-a426-2d907a4714c0)
+
 ---
 ## How to install
 - `nvmrc install 18.18.7`
